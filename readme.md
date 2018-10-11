@@ -14,11 +14,11 @@ composer require tbetool/spam-doctor
 ```
 
 #### Using Library
-
+```
 $spamDoctor = new SpamDoctor();
 
 $spamDoctor->check($text_content);
-
+```
 #### `check()` parameters
 
 1. **text_content**: Text content to check for spam. You can pass both plain text and html content
