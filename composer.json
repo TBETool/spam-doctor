@@ -1,0 +1,21 @@
+{
+    "name": "tbetool/spam-doctor",
+    "type": "library",
+    "description": "Prevent your email from being spammed. PHP Library to check for whether content contains spam words.",
+    "keywords": ["spam doctor", "spam checker", "php spam detector", "php spam checker", "spam detector", "php spam doctor", "email spam check", "php check email spam", "check if email content is spam", "check if email contains spam words", "best spam doctor", "email spam" "php email check", "validate spam content", "Anuj Sharma", "TBE", "Anuj TBE", "PHP download from url"],
+    "homepage": "http://thebornengineer.com",
+    "authors": [
+        {
+            "name": "Anuj Sharma",
+            "email": "contact@anujsh.in",
+            "homepage": "https://anujsh.in",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.5"
+    },
+    "autoload": {
+        "psr-4": {"TBETool\\": "src/"}
+    }
+}
