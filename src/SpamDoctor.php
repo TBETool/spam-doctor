@@ -6,7 +6,7 @@
  * Time: 2:32 PM
  */
 
-namespace App\Library\SpamDoctor\src;
+namespace TBETool;
 
 
 use Exception;
