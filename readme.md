@@ -76,6 +76,33 @@ $spamDoctor->getSpamDictionary();
 returns array of complete list of words used to detect spam contents.
 
 ---
+### Replace Rule
+Library also support replace rule which can be used to replace spamming text
+on the go. You can pass json rule in key-value pair where key in the spam text
+is replaced by the corresponding value.
+
+To set the replace rule, use following function before calling `check()`
+
+```php
+$replace_rule = [
+    'o' => 0,
+    'O' => 0,
+    '*' => '_'
+];
+
+$replace_rule = json_encode($replace_rule);
+
+$spamDoctor->setReplaceRule($replace_rule);
+```
+Above example will replace **o** and **O** (upper and lowercase of O) with **0** (zero)
+
+You can also pass common letter to replace with if letter in `replace_rule` is not found by passing `*` key with 
+appropriate value.
+
+For example, in above example if a spam word contains **o** or **O* will be replaced with **0** otherwise will
+add **_** (underscore) to random place in the word. 
+
+---
 ### Self Learning
 
 This library learns itself as it processes the spam contents. It generates a dictionary file
