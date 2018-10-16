@@ -22,11 +22,17 @@ class SpamDoctor
     private $textContent = '';
 
     private $isHTML = false;
+    private $replaceRule = '';
 
     private $spamFoundPositions = [];
     private $spamFoundItems = [];
     private $spamContentHighlightedText = '';
     private $spamContentHighlightedHtml = '';
+
+    private $spamContentHighlightedHtmlReplaced = '';
+    private $spamContentHighlightedTextReplaced = '';
+    private $spamContentTextReplaced = '';
+    private $spamContentHtmlReplaced = '';
 
     private $userFilterItems = [];
 
@@ -63,6 +69,21 @@ class SpamDoctor
     }
 
     /**
+     * Set replace rule
+     *
+     * @param $json_rule
+     * @throws Exception
+     */
+    public function setReplaceRule($json_rule)
+    {
+        if (empty($json_rule)) {
+            throw new Exception('Json rule empty.');
+        }
+
+        $this->replaceRule = $json_rule;
+    }
+
+    /**
      * Check if text is spam or not
      * @param $text
      * @param bool $is_html
@@ -88,6 +109,14 @@ class SpamDoctor
         $this->spamContentHighlightedText = $this->textContent;
         // Set highlighted content parameter for HTML
         $this->spamContentHighlightedHtml = $text;
+        // Set replace text
+        $this->spamContentTextReplaced = $this->textContent;
+        // Set replace html
+        $this->spamContentHtmlReplaced = $text;
+        // Set replace text highlighted
+        $this->spamContentHighlightedTextReplaced = $this->textContent;
+        // Set replace html highlighted
+        $this->spamContentHighlightedHtmlReplaced = $text;
 
         $this->_checkSpam();
     }
@@ -142,6 +171,12 @@ class SpamDoctor
                     $this->spamContentHighlightedHtml
                 );
 
+                // Set highlighted text
+                $this->spamContentHighlightedTextReplaced = $this->spamContentHighlightedText;
+
+                // Set highlighted html
+                $this->spamContentHighlightedHtmlReplaced = $this->spamContentHighlightedHtml;
+
 
                 // Update last position value
                 $lastPos = $lastPos + strlen($d_item);
@@ -150,6 +185,9 @@ class SpamDoctor
             // Teach spam doctor
             $this->_teachDoctor($d_item);
         }
+
+        // Replace content according to rule
+        $this->_processReplaceRule();
 
         // Sort positions in ascending order
         sort($this->spamFoundPositions);
@@ -232,6 +270,46 @@ class SpamDoctor
         }
 
         return $total_taught;
+    }
+
+    /**
+     * Get highlighted replaced
+     *
+     * @return string
+     */
+    public function getSpamContentHighlightedHtmlReplaced()
+    {
+        return $this->spamContentHighlightedHtmlReplaced;
+    }
+
+    /**
+     * Get highlighted text replaced content
+     *
+     * @return string
+     */
+    public function getSpamContentHighlightedTextReplace()
+    {
+        return $this->spamContentHighlightedTextReplaced;
+    }
+
+    /**
+     * Get text replaced content
+     *
+     * @return string
+     */
+    public function getSpamContentTextReplaced()
+    {
+        return $this->spamContentTextReplaced;
+    }
+
+    /**
+     * Get html replaced content
+     *
+     * @return string
+     */
+    public function getSpamContentHtmlReplaced()
+    {
+        return $this->spamContentHtmlReplaced;
     }
 
     /**
@@ -370,5 +448,51 @@ class SpamDoctor
         }
 
         return $result;
+    }
+
+    /**
+     * Apply replace rule
+     *
+     * @param $found_item
+     */
+    private function _processReplaceRule()
+    {
+        foreach ($this->spamFoundItems as $foundItem) {
+            $found_item = $foundItem['item'];
+            $replace_item = $foundItem['item'];
+
+            $data = (array)json_decode($this->replaceRule);
+
+            // Get common symbol to replace
+            $common = '';
+            if (key_exists('*', $data)) {
+                $common = $data['*'];
+            }
+
+            $replaced = false;
+
+            // Loop over each rule
+            foreach ($data as $d => $v) {
+                if (strpos($replace_item, $d) !== false) {
+                    // If rule key found in the item
+                    // Replace with the correspondence symbol
+                    $replace_item = str_replace($d, $v, $replace_item);
+                    $replaced = true;
+                }
+            }
+
+            if (!$replaced) {
+                // Else replace with common symbol at random place
+                $str_len = strlen($replace_item);
+                $rand = rand(0, $str_len);
+                $replace_item = substr_replace($replace_item, $common, $rand, 0);
+            }
+
+            // replace in variables
+            $this->spamContentHighlightedHtmlReplaced = str_replace($found_item, $replace_item, $this->spamContentHighlightedHtmlReplaced);
+            $this->spamContentHighlightedTextReplaced = str_replace($found_item, $replace_item, $this->spamContentHighlightedTextReplaced);
+            $this->spamContentTextReplaced = str_replace($found_item, $replace_item, $this->spamContentTextReplaced);
+            $this->spamContentHtmlReplaced = str_replace($found_item, $replace_item, $this->spamContentHtmlReplaced);
+        }
     }
 }
