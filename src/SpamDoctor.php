@@ -26,6 +26,7 @@ class SpamDoctor
 
     private $spamFoundPositions = [];
     private $spamFoundItems = [];
+    private $spamFoundContentItems = [];
     private $spamContentHighlightedText = '';
     private $spamContentHighlightedHtml = '';
 
@@ -140,10 +141,16 @@ class SpamDoctor
             $lastPos = 0;
 
             // Search for all occurrences of the item in the content
-            while (($lastPos = strpos($this->textContent, $d_item, $lastPos)) !== false) {
+            while (($lastPos = stripos($this->textContent, $d_item, $lastPos)) !== false) {
 
                 // Store position of occurrence
                 $this->spamFoundPositions[] = $lastPos;
+
+                // Store string found from the content
+                $sub_str_item = substr($this->textContent, $lastPos, strlen($d_item));
+                if (!in_array($sub_str_item, $this->spamFoundContentItems)) {
+                    $this->spamFoundContentItems[] = $sub_str_item;
+                }
 
                 // Store the item found and its occurrence count
                 $index = array_search($d_item, array_column($this->spamFoundItems, 'item'));
@@ -457,9 +464,9 @@ class SpamDoctor
      */
     private function _processReplaceRule()
     {
-        foreach ($this->spamFoundItems as $foundItem) {
-            $found_item = $foundItem['item'];
-            $replace_item = $foundItem['item'];
+        foreach ($this->spamFoundContentItems as $foundItem) {
+            $found_item = $foundItem;
+            $replace_item = $foundItem;
 
             $data = (array)json_decode($this->replaceRule);
 
